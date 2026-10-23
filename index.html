@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Workout log</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Workout log">
+<meta name="theme-color" content="#2a4bff">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+:root{--bg:#e6e9ee;--card:#fff;--ink:#161a22;--mute:#667085;--line:#d3d8e0;--acc:#2a4bff;--accink:#fff;--pb:#0a7d4f;--del:#b42318;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1218;--card:#181c25;--ink:#eef1f6;--mute:#98a2b3;--line:#2a303c;--acc:#6f8bff;--accink:#0f1218;--pb:#4ad69a;--del:#ff8a80}}
+:root[data-theme="dark"]{--bg:#0f1218;--card:#181c25;--ink:#eef1f6;--mute:#98a2b3;--line:#2a303c;--acc:#6f8bff;--accink:#0f1218;--pb:#4ad69a;--del:#ff8a80}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:500 16px/1.4 Barlow,system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:520px;margin:0 auto;padding:20px 16px 110px}
+h1{font:700 40px/1 "Barlow Condensed","Arial Narrow",sans-serif;margin:8px 0 4px;letter-spacing:.2px}
+.sub{color:var(--mute);margin:0 0 18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+label{display:block;font-size:14px;color:var(--mute);margin-bottom:4px}
+input{width:100%;font:inherit;font-size:18px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px;min-height:48px}
+input:focus-visible,button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.add{width:100%;margin-top:14px;min-height:52px;border:0;border-radius:10px;background:var(--acc);color:var(--accink);font:700 22px "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:.5px;cursor:pointer}
+.unit{display:flex;gap:6px;margin-top:12px;align-items:center;color:var(--mute);font-size:14px}
+.unit button{border:1px solid var(--line);background:none;color:var(--ink);border-radius:8px;padding:6px 12px;min-height:36px;font:inherit;cursor:pointer}
+.unit button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.day{margin-top:26px}
+.day h2{font:700 24px "Barlow Condensed","Arial Narrow",sans-serif;margin:0 0 8px;display:flex;justify-content:space-between}
+.day h2 span{color:var(--mute);font:500 14px Barlow,system-ui,sans-serif;align-self:flex-end}
+.ent{display:flex;align-items:center;gap:10px;padding:12px 0;border-top:1px solid var(--line)}
+.ent:first-of-type{border-top:0}
+.ent b{display:block;font-weight:600}
+.ent small{color:var(--mute);font-size:15px}
+.pb{color:var(--pb);font-weight:600}
+.ent .t{flex:1}
+.ent button{border:0;background:none;color:var(--del);font:inherit;font-size:14px;min-height:44px;padding:0 8px;cursor:pointer}
+.empty{margin-top:26px;color:var(--mute);text-align:center;padding:24px}
+.tabs{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding:6px 12px calc(6px + env(safe-area-inset-bottom,0px));gap:8px}
+.tabs button{flex:1;min-height:52px;border:0;border-radius:12px;background:none;color:var(--mute);font:700 20px "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:.4px;cursor:pointer}
+.tabs button[aria-current="true"]{background:var(--bg);color:var(--acc)}
+.tabs button:focus-visible{outline:3px solid var(--acc);outline-offset:-3px}
+#tlist .day:first-child{margin-top:20px}
+.chips{display:flex;gap:8px;overflow-x:auto;margin:0 0 10px;padding-bottom:4px}
+.chips button{flex:none;min-height:40px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:20px;padding:0 14px;font:inherit;font-size:15px;cursor:pointer}
+</style>
+</head>
+<body>
+<main>
+<h1>Workout log</h1>
+<p class="sub" id="today"></p>
+<section id="v-log">
+<div class="card">
+  <label for="ex">Exercise</label>
+  <div class="chips" id="chips"></div>
+  <input id="ex" list="exlist" autocomplete="off" placeholder="Bench press">
+  <datalist id="exlist"></datalist>
+  <div class="row">
+    <div><label for="w" id="wl">Weight (kg)</label><input id="w" type="number" inputmode="decimal" min="0" step="0.5"></div>
+    <div><label for="r">Reps</label><input id="r" type="number" inputmode="numeric" min="1" step="1"></div>
+    <div><label for="s">Sets</label><input id="s" type="number" inputmode="numeric" min="1" step="1" value="1"></div>
+  </div>
+  <div class="unit" role="group" aria-label="Weight unit">Unit
+    <button id="ukg" aria-pressed="true">kg</button><button id="ulb" aria-pressed="false">lb</button>
+  </div>
+  <button class="add" id="add">Add set</button>
+</div>
+<div id="tlist"></div>
+</section>
+<section id="v-hist" hidden><div id="list"></div></section>
+</main>
+<nav class="tabs" aria-label="Main"><button id="tl" aria-current="true">Log</button><button id="th" aria-current="false">History</button></nav>
+<script>
+(function(){
+var KEY='workout-log-v1',state={unit:'kg',items:[]};
+function load(){try{var d=localStorage.getItem(KEY);if(d){var p=JSON.parse(d);if(p&&Array.isArray(p.items)){state.items=p.items;state.unit=p.unit==='lb'?'lb':'kg'}}}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+var $=function(i){return document.getElementById(i)};
+function dayKey(d){var m=d.getMonth()+1,x=d.getDate();return d.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(x<10?'0':'')+x}
+function fmtDay(k){var p=k.split('-'),d=new Date(+p[0],+p[1]-1,+p[2]),t=dayKey(new Date());
+ if(k===t)return 'Today';var y=new Date();y.setDate(y.getDate()-1);if(k===dayKey(y))return 'Yesterday';
+ return d.toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'})}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function render(){
+ $('today').textContent=new Date().toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long'});
+ $('ukg').setAttribute('aria-pressed',state.unit==='kg');$('ulb').setAttribute('aria-pressed',state.unit==='lb');
+ $('wl').textContent='Weight ('+state.unit+')';
+ var names={},best={};
+ state.items.forEach(function(it){var k=it.ex.toLowerCase();names[k]=it.ex;var v=it.w*(it.u==='lb'?0.453592:1);if(!(k in best)||v>best[k])best[k]=v});
+ $('exlist').innerHTML=Object.keys(names).map(function(k){return '<option value="'+esc(names[k])+'">'}).join('');
+ var dn=['Bench press','Squat','Deadlift','Overhead press','Barbell row','Pull-up'],all=dn.slice();
+ Object.keys(names).forEach(function(k){if(!dn.some(function(d){return d.toLowerCase()===k}))all.push(names[k])});
+ $('chips').innerHTML=all.map(function(n){return '<button type="button" data-ex="'+esc(n)+'">'+esc(n)+'</button>'}).join('');
+ var list=$('list');
+ if(!state.items.length){list.innerHTML='<div class="empty">No history yet. Log your first set.</div>';$('tlist').innerHTML='<div class="empty">Add your first set above.</div>';return}
+ var groups={};state.items.forEach(function(it){(groups[it.day]=groups[it.day]||[]).push(it)});
+ var html='';
+ Object.keys(groups).sort().reverse().forEach(function(k){
+  var g=groups[k],vol=0;g.forEach(function(it){vol+=it.w*it.r*it.s});
+  html+='<section class="day card" style="padding:16px"><h2>'+fmtDay(k)+'<span>'+g.length+' '+(g.length===1?'entry':'entries')+'</span></h2>';
+  g.slice().sort(function(a,b){return b.id-a.id}).forEach(function(it){
+   var v=it.w*(it.u==='lb'?0.453592:1),isPb=Math.abs(v-best[it.ex.toLowerCase()])<0.001&&it.w>0;
+   html+='<div class="ent"><div class="t"><b>'+esc(it.ex)+'</b><small>'+it.s+' × '+it.r+(it.w?' @ '+it.w+' '+it.u:' bodyweight')+(isPb?' <span class="pb">· Heaviest</span>':'')+'</small></div><button data-id="'+it.id+'" aria-label="Delete '+esc(it.ex)+' entry">Delete</button></div>'});
+  html+='</section>'});
+ list.innerHTML=html;
+ var f=list.firstElementChild;
+ $('tlist').innerHTML=(f&&f.querySelector('h2').firstChild.textContent==='Today')?f.outerHTML:'<div class="empty">Nothing logged today yet.</div>';
+}
+$('add').onclick=function(){
+ var ex=$('ex').value.trim(),w=parseFloat($('w').value)||0,r=parseInt($('r').value,10),s=parseInt($('s').value,10)||1;
+ if(!ex){$('ex').focus();return}
+ if(!r||r<1){$('r').focus();return}
+ state.items.push({id:Date.now(),day:dayKey(new Date()),ex:ex,w:w,r:r,s:s,u:state.unit});
+ save();$('r').value='';$('s').value='1';render();$('r').focus();
+};
+document.querySelector('main').onclick=function(e){var c=e.target.closest('button[data-ex]');if(c){$('ex').value=c.getAttribute('data-ex');$('ex').dispatchEvent(new Event('change'));$('w').focus();return}
+ var b=e.target.closest('button[data-id]');if(!b)return;
+ var id=+b.getAttribute('data-id');state.items=state.items.filter(function(i){return i.id!==id});save();render()};
+$('ukg').onclick=function(){state.unit='kg';save();render()};
+$('ulb').onclick=function(){state.unit='lb';save();render()};
+$('ex').addEventListener('change',function(){
+ var k=this.value.trim().toLowerCase(),last=null;
+ state.items.forEach(function(i){if(i.ex.toLowerCase()===k)last=i});
+ if(last){if(!$('w').value&&last.u===state.unit)$('w').value=last.w||'';if(!$('r').value)$('r').value=last.r}});
+function tab(n){$('v-log').hidden=n!=='log';$('v-hist').hidden=n!=='hist';$('tl').setAttribute('aria-current',n==='log');$('th').setAttribute('aria-current',n==='hist');window.scrollTo(0,0)}
+$('tl').onclick=function(){tab('log')};$('th').onclick=function(){tab('hist')};
+load();render();
+})();
+</script>
+</body>
+</html>
